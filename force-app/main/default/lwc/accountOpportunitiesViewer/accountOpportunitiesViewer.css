@@ -1,0 +1,31 @@
+/**
+ * Created by William on 13/03/2024.
+ * @description Mises en page responsive du composant Account Opportunities.
+ * @modified by MM on 05-11-2026
+ **/
+
+/* Présentation par défaut sur grand écran : masquer les cartes pour ne montrer que la datatable. */
+.mobile-results {
+    display: none;
+}
+
+.desktop-results {
+    /* Contenir une longue liste dans un panneau limité plutôt que d'étirer toute la page. */
+    max-height: 32rem;
+    /* Si le tableau dépasse la hauteur du panneau, le défilement reste dans la zone des résultats. */
+    overflow: auto;
+}
+
+/*
+ * Le breakpoint dépend de la largeur disponible de la fenêtre, et non de l'appareil utilisé.
+ * À 48rem ou moins, un tableau à plusieurs colonnes est difficile à lire ; afficher plutôt des cartes empilées.
+ */
+@media (max-width: 48rem) {
+    .desktop-results {
+        display: none;
+    }
+
+    .mobile-results {
+        display: block;
+    }
+}

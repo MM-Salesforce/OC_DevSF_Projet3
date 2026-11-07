@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>60.0</apiVersion>
+    <description>Account Cases Searcher</description>
+    <isExposed>true</isExposed>
+    <masterLabel>Account Cases Searcher</masterLabel>
+    <targets>
+        <!-- Rend le composant disponible dans Lightning App Builder pour les pages d'enregistrement. -->
+        <target>lightning__RecordPage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordPage">
+            <!-- Large autorise l'affichage sur ordinateur ; Small permet l'utilisation dans l'expérience mobile Salesforce. -->
+            <supportedFormFactors>
+                <supportedFormFactor type="Large"/>
+                <supportedFormFactor type="Small"/>
+            </supportedFormFactors>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

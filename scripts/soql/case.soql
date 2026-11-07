@@ -1,0 +1,1 @@
+SELECT Id, Subject, Status, Priority, AccountId FROM Case 

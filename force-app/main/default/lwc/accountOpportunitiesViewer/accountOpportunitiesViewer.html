@@ -1,0 +1,114 @@
+<template>
+    <!-- CONTENEUR : Lightning card fournit le titre et l'icône Opportunity standard. -->
+    <lightning-card title="Opportunités du Compte" icon-name="standard:opportunity">
+        <div class="slds-max-large-size_xx-large">
+            <!-- ACTION REFRESH : handleRafraichir actualise le wire Apex ; bouton désactivé tant que l'état n'est pas prêt. -->
+            <div class="slds-p-bottom_small">
+                <lightning-button
+                    label="Rafraîchir"
+                    onclick={handleRafraichir}
+                    variant="brand"
+                    disabled={isRefreshDisabled}>
+                </lightning-button>
+            </div>
+
+            <div class="slds-is-relative">
+                <!-- CHARGEMENT : isRefreshing vaut true pendant l'attente du rafraîchissement demandé par l'utilisateur. -->
+                <template lwc:if={isRefreshing}>
+                    <lightning-spinner
+                        alternative-text="Actualisation des opportunités"
+                        size="small">
+                    </lightning-spinner>
+                </template>
+
+                <!-- RÉSULTATS : hasOpportunities vaut true lorsque le DTO Apex contient au moins une ligne. -->
+                <template lwc:if={hasOpportunities}>
+                    <!-- AFFICHAGE GRAND ÉCRAN : présenter les champs renvoyés dans un tableau. -->
+                    <!-- Au breakpoint petit écran, CSS bascule vers la vue en cartes ci-dessous. -->
+                    <div class="desktop-results">
+                        <lightning-datatable
+                            data={opportunities}
+                            columns={columns}
+                            key-field="Id"
+                            class="slds-theme_default slds-p-top_medium">
+                        </lightning-datatable>
+                    </div>
+
+                    <!-- AFFICHAGE MOBILE : répéter une carte lisible pour chaque Opportunity. -->
+                    <div class="mobile-results" aria-label="Opportunités du compte">
+                        <template for:each={opportunities} for:item="opportunity">
+                            <!-- Id est la clé stable que LWC utilise pour suivre chaque élément répété. -->
+                            <article
+                                key={opportunity.Id}
+                                class="opportunity-card slds-box slds-m-around_small">
+                                <h2 class="slds-text-heading_small slds-m-bottom_small">
+                                    {opportunity.Name}
+                                </h2>
+                                <dl>
+                                    <div class="slds-m-bottom_x-small">
+                                        <dt class="slds-text-title">Montant</dt>
+                                        <dd>
+                                            <!-- Formater le champ numérique selon les paramètres régionaux monétaires de l'utilisateur. -->
+                                            <lightning-formatted-number
+                                                value={opportunity.Amount}
+                                                format-style="currency">
+                                            </lightning-formatted-number>
+                                        </dd>
+                                    </div>
+                                    <div class="slds-m-bottom_x-small">
+                                        <dt class="slds-text-title">Date de clôture</dt>
+                                        <dd>
+                                            <!-- Formater la date Salesforce pour l'affichage sans modifier sa valeur stockée. -->
+                                            <lightning-formatted-date-time
+                                                value={opportunity.CloseDate}
+                                                year="numeric"
+                                                month="2-digit"
+                                                day="2-digit">
+                                            </lightning-formatted-date-time>
+                                        </dd>
+                                    </div>
+                                    <div>
+                                        <dt class="slds-text-title">Phase</dt>
+                                        <dd>{opportunity.StageName}</dd>
+                                    </div>
+                                </dl>
+                            </article>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- LIMITE : le sélecteur a détecté une 101e correspondance et n'a renvoyé que les 100 premières. -->
+                <template lwc:if={limitReached}>
+                    <p class="slds-p-around_medium slds-text-color_weak" role="status">
+                        Plus de 100 opportunités correspondent à ce compte. Seules les 100 premières sont affichées.
+                    </p>
+                </template>
+
+                <!-- ÉTAT VIDE : le wire a réussi, mais le sélecteur a renvoyé une liste vide. -->
+                <template lwc:if={isOpportunitiesEmpty}>
+                    <p class="slds-text-color_weak slds-text-heading_small">
+                        Aucune opportunité associée à ce compte.
+                    </p>
+                </template>
+
+                <!-- ERREUR : le wire a stocké un objet d'erreur ; role=alert annonce le message de façon accessible. -->
+                <template lwc:if={error}>
+                    <div
+                        class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error"
+                        role="alert">
+                        <lightning-icon
+                            icon-name="utility:error"
+                            variant="inverse"
+                            size="x-small"
+                            class="slds-m-right_x-small">
+                        </lightning-icon>
+                        <span class="slds-assistive-text">Erreur</span>
+                        <h2 class="slds-text-heading_small slds-truncate">
+                            Une erreur s'est produite lors du chargement des opportunités.
+                        </h2>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </lightning-card>
+</template>

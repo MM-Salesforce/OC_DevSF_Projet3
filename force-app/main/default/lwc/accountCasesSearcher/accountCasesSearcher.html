@@ -1,0 +1,106 @@
+<template>
+    <!-- CONTENEUR : Lightning card fournit le cadre standard, le titre et l'icône Case. -->
+    <lightning-card title="Recherche de cas par sujet" icon-name="standard:case">
+        <!-- FORMULAIRE DE RECHERCHE : onchange mémorise la saisie ; le clic lance l'appel Apex. -->
+        <!-- Les deux commandes sont désactivées pendant l'attente de la Promise pour éviter les recherches en double. -->
+        <div class="slds-p-around_medium">
+            <lightning-input
+                label="Rechercher par sujet"
+                value={searchTerm}
+                onchange={updateSearchTerm}
+                disabled={isSearching}>
+            </lightning-input>
+
+            <lightning-button
+                label="Rechercher"
+                variant="brand"
+                onclick={handleSearch}
+                disabled={isSearching}
+                class="slds-m-top_small">
+            </lightning-button>
+        </div>
+
+        <div class="slds-is-relative">
+            <!-- CHARGEMENT : isSearching passe à true avant l'attente d'Apex et revient à false dans finally. -->
+            <template lwc:if={isSearching}>
+                <div class="slds-is-relative slds-p-vertical_xx-large">
+                    <lightning-spinner
+                        alternative-text="Recherche des cas en cours"
+                        size="small">
+                    </lightning-spinner>
+                </div>
+            </template>
+
+            <!-- RÉSULTATS : hasCases vaut true uniquement si la réponse contient un ou plusieurs Case. -->
+            <template lwc:if={hasCases}>
+                <!-- AFFICHAGE GRAND ÉCRAN : présenter les enregistrements dans une lightning-datatable à colonnes. -->
+                <!-- Les cartes ci-dessous contiennent les mêmes données ; CSS choisit la vue visible. -->
+                <div class="desktop-results">
+                    <lightning-datatable
+                        data={cases}
+                        columns={columns}
+                        key-field="Id">
+                    </lightning-datatable>
+                </div>
+
+                <!-- AFFICHAGE MOBILE : une carte par Case conserve une bonne lisibilité sur écran étroit. -->
+                <div class="mobile-results" aria-label="Résultats de la recherche">
+                    <!-- CARTES RÉPÉTÉES : for:each parcourt les Case et rend chacun accessible sous caseRecord. -->
+                    <template for:each={cases} for:item="caseRecord">
+                        <!-- Id est la clé unique et stable que LWC utilise pour suivre chaque élément répété. -->
+                        <article
+                            key={caseRecord.Id}
+                            class="case-card slds-box slds-m-around_small">
+
+                            <h2 class="slds-text-heading_small slds-m-bottom_small">
+                                {caseRecord.Subject}
+                            </h2>
+
+                            <dl>
+                                <div class="slds-m-bottom_x-small">
+                                    <dt class="slds-text-title">Statut</dt>
+                                    <dd>{caseRecord.Status}</dd>
+                                </div>
+                                <div>
+                                    <dt class="slds-text-title">Priorité</dt>
+                                    <dd>{caseRecord.Priority}</dd>
+                                </div>
+                            </dl>
+                        </article>
+                    </template>
+                </div>
+            </template>
+
+            <!-- ÉTAT VIDE : l'appel Apex a réussi, mais a renvoyé un tableau cases vide. -->
+            <template lwc:if={showNoResults}>
+                <p class="slds-p-around_medium slds-text-color_weak">
+                    Aucun cas trouvé.
+                </p>
+            </template>
+
+            <!-- LIMITE DE RÉSULTATS : le sélecteur vérifie s'il existe une 101e correspondance, renvoie 100 lignes au plus,
+                 et active limitReached pour inviter l'utilisateur à préciser sa recherche. -->
+            <template lwc:if={limitReached}>
+                <p class="slds-p-around_medium slds-text-color_weak" role="status">
+                    Plus de 100 cas correspondent à votre recherche. Seuls les 100 premiers sont affichés.
+                    Veuillez préciser votre recherche pour obtenir des résultats plus ciblés.
+                </p>
+            </template>
+
+            <!-- ERREUR : error pilote la visibilité ; errorMessage garantit un texte lisible
+                 même si error est un objet. role="alert" annonce le message aux technologies d'assistance. -->
+            <template lwc:if={error}>
+                <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+                    <lightning-icon
+                        icon-name="utility:error"
+                        variant="inverse"
+                        size="x-small"
+                        class="slds-m-right_x-small">
+                    </lightning-icon>
+                    <span class="slds-assistive-text">Erreur</span>
+                    <h2 class="slds-text-heading_small">{errorMessage}</h2>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+</template>

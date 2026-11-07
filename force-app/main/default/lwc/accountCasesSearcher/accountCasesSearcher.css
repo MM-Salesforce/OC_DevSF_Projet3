@@ -1,0 +1,31 @@
+/**
+ * @description Présentations responsive des résultats sur ordinateur et petits écrans.
+ * @author William
+ * @created on 13-03-2024
+ * @modified by MM on 05-11-2026
+ **/
+/* Présentation par défaut : masquer les cartes mobiles pour que la datatable soit seule visible sur grand écran. */
+.mobile-results {
+    display: none;
+}
+
+.desktop-results {
+    max-height: 32rem; /* Éviter que jusqu'à 100 lignes ne rendent la carte trop haute. */
+    overflow: auto; /* Conserver le défilement dans la zone des résultats lorsque la liste est longue. */
+}
+
+/*
+ * À 48rem ou moins, masquer la large datatable et afficher les cartes Case empilées.
+ * Le breakpoint dépend de la largeur disponible de la fenêtre, pas du type d'appareil.
+ */
+@media (max-width: 48rem) {
+    .desktop-results {
+        /* Masquer le tableau à plusieurs colonnes lorsque la fenêtre disponible est étroite. */
+        display: none;
+    }
+
+    .mobile-results {
+        /* Afficher les cartes empilées sur les téléphones et autres conteneurs étroits. */
+        display: block;
+    }
+}
